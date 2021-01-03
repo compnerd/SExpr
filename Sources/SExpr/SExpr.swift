@@ -46,6 +46,12 @@ public enum SExpr {
   case list([SExpr])
 }
 
+extension SExpr {
+  public static var `nil`: SExpr {
+    .list([])
+  }
+}
+
 extension SExpr: CustomStringConvertible {
   public var description: String {
     switch self {
