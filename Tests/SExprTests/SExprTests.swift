@@ -76,3 +76,48 @@ final class LexTests: XCTestCase {
     )
   }
 }
+
+final class ParseTests: XCTestCase {
+  func testParseQuote() {
+    let expr: SExpr = "(quote (this is a quoted list))"
+    XCTAssertEqual(expr,
+      .list([
+        .atom(.string("quote")),
+        .list([
+          .atom(.string("this")),
+          .atom(.string("is")),
+          .atom(.string("a")),
+          .atom(.string("quoted")),
+          .atom(.string("list")),
+        ])
+      ])
+    )
+  }
+
+  func testParseApply() {
+    let expr: SExpr = "(define (f x) x) 1"
+    XCTAssertEqual(expr,
+      .list([
+        .list([
+          .atom(.string("define")),
+          .list([
+            .atom(.string("f")),
+            .atom(.string("x")),
+          ]),
+          .atom(.string("x")),
+        ]),
+        .atom(.int(1)),
+      ])
+    )
+  }
+
+  func testParseSequence() {
+    let expr: SExpr = "1 2"
+    XCTAssertEqual(expr,
+      .list([
+        .atom(.int(1)),
+        .atom(.int(2)),
+      ])
+    )
+  }
+}
