@@ -12,5 +12,6 @@ let SExpr = Package(
   ],
   targets: [
     .target(name: "SExpr"),
+    .testTarget(name: "SExprTests", dependencies: ["SExpr"]),
   ]
 )
