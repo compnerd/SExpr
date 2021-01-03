@@ -39,3 +39,9 @@ func tokenise(_ expr: String) -> [Token] {
 
   return tokens
 }
+
+extension String {
+  internal func tokens() -> [Token] {
+    return tokenise(self)
+  }
+}

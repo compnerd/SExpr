@@ -46,6 +46,6 @@ extension SExpr: Equatable {
 
 extension SExpr: ExpressibleByStringLiteral {
   public init(stringLiteral string: String) {
-    self = parse(tokenise(string)).expression
+    self = SExpr(string.tokens())
   }
 }

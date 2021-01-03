@@ -42,3 +42,10 @@ func parse(_ tokens: [Token], into node: SExpr? = nil)
   }
   return (node ?? .nil, tokens)
 }
+
+extension SExpr {
+  internal init(_ tokens: [Token]) {
+    let (expression, _) = parse(tokens)
+    self = expression
+  }
+}
