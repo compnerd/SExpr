@@ -24,7 +24,7 @@ extension SExpr: CustomStringConvertible {
     case let .atom(symbol):
       return "\(symbol)"
     case .list([]):
-      return "nil"
+      return "\u{2205}"
     case let .list(expressions):
       return "(\(expressions.map { "\($0)" }.joined(separator: " ")))"
     }
