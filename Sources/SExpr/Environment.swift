@@ -30,32 +30,37 @@ extension Environment {
       Builtins.define.rawValue: .procedure({ args, environment in
         guard case let .list(args) = args, args.count == 2 else { return .nil }
 
-        guard case var .list(bindings) = args[0] else { return .nil }
+        if case let .list(vars) = args[0] {
+          guard vars.count > 0 else { return .nil }
+          guard case let .atom(.string(name)) = vars[0] else {
+            return .nil
+          }
 
-        guard bindings.count > 0 else { return .nil }
+          let bind: [SExpr] = Array<SExpr>(vars.dropFirst(1))
+          let body: SExpr = args[1]
 
-        guard case let .atom(.string(name)) = bindings[0] else { return .nil }
-        bindings = Array<SExpr>(bindings.dropFirst(1))
-        let body: SExpr = args[1]
+          environment[name] = .procedure({ args, environment in
+            guard case let .list(args) = args else { return .nil }
 
-        environment[name] = .procedure({ args, environment in
-          guard case let .list(args) = args else { return .nil }
-
-          let names: [String] = bindings.compactMap {
-            if case let .atom(.string(name)) = $0 {
-              return name
+            let names: [String] = bind.compactMap {
+              if case let .atom(.string(name)) = $0 { return name }
+              // TODO: is this a free-variable which has already been bound?
+              return nil
             }
-            // TODO: is this a free-variable which has already been bound?
-            return nil
-          }
-          zip(names, args).forEach {
-            environment.updateValue(.value($1), forKey: $0)
-          }
+            zip(names, args).forEach {
+              environment.updateValue(.value($1), forKey: $0)
+            }
 
-          environment[name] = nil
+            // TODO: should we preserve the binding for recursive calls?
+            environment[name] = nil
+            return body.evaluate(in: &environment)
+          })
+        } else if case let .atom(.string(name)) = args[0] {
+          var closureEnv = environment
+          let value: SExpr = args[1].evaluate(in: &closureEnv)
 
-          return body.evaluate(in: &environment)
-        })
+          environment[name] = .value(value)
+        }
 
         return .nil
       }),

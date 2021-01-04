@@ -190,6 +190,18 @@ final class EvaluateTests: XCTestCase {
       .atom(.int(1))
     )
   }
+
+  func testBindVariable() {
+    let expr: SExpr = """
+    (define x 1)
+    (define (f x) x)
+    (f 2)
+    """
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.int(2)))
+  }
 }
 
 final class BuiltinsTests: XCTestCase {
