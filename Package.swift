@@ -8,10 +8,12 @@ let SExpr = Package(
     .macOS(.v10_15),
   ],
   products: [
-    .library(name: "sexpr", targets: ["SExpr"]),
+    .library(name: "libsexpr", targets: ["SExpr"]),
+    .executable(name: "sexpr", targets: ["REPL"]),
   ],
   targets: [
     .target(name: "SExpr"),
+    .target(name: "REPL", dependencies: ["SExpr"]),
     .testTarget(name: "SExprTests", dependencies: ["SExpr"]),
   ]
 )
