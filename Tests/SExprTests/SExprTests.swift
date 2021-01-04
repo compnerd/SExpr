@@ -121,3 +121,91 @@ final class ParseTests: XCTestCase {
     )
   }
 }
+
+final class EvaluateTests: XCTestCase {
+  func testAtomInt() {
+    let expr: SExpr = "1"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.int(1)))
+  }
+
+  func testAtomDouble() {
+    let expr: SExpr = "1.0"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.double(1.0)))
+  }
+
+  func testAtomString() {
+    let expr: SExpr = "string"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.string("string")))
+  }
+
+  func testEmptyExpression() {
+    let expr: SExpr = "()"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .nil)
+  }
+
+  func testFilteringNils() {
+    let expr: SExpr = "() (quote (this is a quoted list))"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result,
+      .list([
+        .atom(.string("this")),
+        .atom(.string("is")),
+        .atom(.string("a")),
+        .atom(.string("quoted")),
+        .atom(.string("list")),
+      ])
+    )
+  }
+
+  func testApplyLambda() {
+    let expr: SExpr = "(lambda (x) x) 1"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result,
+      .atom(.int(1))
+    )
+  }
+
+  func testApplyFunction() {
+    let expr: SExpr = "(define (f x) x) (f 1)"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result,
+      .atom(.int(1))
+    )
+  }
+}
+
+final class BuiltinsTests: XCTestCase {
+  func testEvaluateQuote() {
+    let expr: SExpr = "(quote (this is a quoted list))"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result,
+      .list([
+        .atom(.string("this")),
+        .atom(.string("is")),
+        .atom(.string("a")),
+        .atom(.string("quoted")),
+        .atom(.string("list")),
+      ])
+    )
+  }
+}

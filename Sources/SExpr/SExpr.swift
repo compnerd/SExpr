@@ -49,3 +49,39 @@ extension SExpr: ExpressibleByStringLiteral {
     self = SExpr(string.tokens())
   }
 }
+
+extension SExpr {
+  public func evaluate(in environment: inout Environment) -> SExpr {
+    switch self {
+    case let .atom(symbol):
+      if case let .string(identifier) = symbol {
+        if let definition = environment[identifier],
+            case let .value(value) = definition {
+          return value
+        }
+      }
+      return self
+
+    case var .list(elements):
+      guard elements.count > 0 else { return .nil }
+
+      if case let .atom(.string(identifier)) = elements[0] {
+        if case let .procedure(body) = environment[identifier] {
+          elements = Array<SExpr>(elements.dropFirst(1))
+          if !Builtins.special(identifier) {
+            elements = elements.map { $0.evaluate(in: &environment) }
+          }
+          return body(.list(elements), &environment)
+        }
+      }
+
+      let result: SExpr = .list(elements.map { $0.evaluate(in: &environment) }
+                                        .filter { $0 != .nil })
+      if result == .nil { return .nil }
+      if case let .list(elements) = result, elements.count == 1 {
+        return elements[0]
+      }
+      return result.evaluate(in: &environment)
+    }
+  }
+}
