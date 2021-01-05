@@ -68,7 +68,7 @@ extension SExpr {
       if case let .atom(.string(identifier)) = elements[0] {
         if case let .procedure(body) = environment[identifier] {
           elements = Array<SExpr>(elements.dropFirst(1))
-          if !Builtins.special(identifier) {
+          if !Builtin.special(identifier) {
             elements = elements.map { $0.evaluate(in: &environment) }
           }
           return body(.list(elements), &environment)
