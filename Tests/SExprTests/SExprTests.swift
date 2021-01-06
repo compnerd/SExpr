@@ -220,4 +220,31 @@ final class BuiltinsTests: XCTestCase {
       ])
     )
   }
+
+  func testEvaluatePlusSimple() {
+    let expr: SExpr = "(+ 1 1)"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.int(2)))
+  }
+
+  func testEvaluatePlusSubExprs() {
+    let expr: SExpr = "(+ (+ 1 1) (+ 1 1))"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.int(4)))
+  }
+
+  func testEvaluatePlusVariables() {
+    let expr: SExpr = """
+    (define x 1)
+    (+ x 1)
+    """
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.int(2)))
+  }
 }

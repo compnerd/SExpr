@@ -6,6 +6,8 @@
 //
 
 internal enum Builtin: String {
+  case _add = "+"
+
   case define
   case lambda
   case quote
@@ -63,6 +65,52 @@ internal func lambda(_ args: SExpr, _ environment: inout Environment) -> SExpr {
     return body.evaluate(in: &closureEnv)
   })
   return .atom(.string(name))
+}
+
+internal func plus(_ args: SExpr, _ environment: inout Environment) -> SExpr {
+  // TODO: convert this to > 1, and map `+` over the arguments
+  guard case let .list(exprs) = args, exprs.count == 2 else { return .nil }
+
+  func value(of expr: SExpr, in environment: Environment) -> SExpr {
+    switch expr {
+    case .atom(.int(_)):
+      return expr
+    case .atom(.double(_)):
+      return expr
+    case let .atom(.string(name)):
+      // TODO: error: we must have a binding
+      guard let binding = environment[name] else { return .nil }
+
+      switch binding {
+      case let .value(bound):
+        return value(of: bound, in: environment)
+      default:
+        // TODO: error: invalid type
+        return .nil
+      }
+    default:
+      var closureEnv = environment
+      return value(of: expr.evaluate(in: &closureEnv), in: environment)
+    }
+  }
+
+  guard case let .atom(lhs) = value(of: exprs[0], in: environment),
+        case let .atom(rhs) = value(of: exprs[1], in: environment) else {
+    // TODO: report error
+    return .nil
+  }
+
+  switch (lhs, rhs) {
+  case let (.double(lhs), .double(rhs)):
+    return .atom(.double(lhs + rhs))
+  case let (.int(lhs), .int(rhs)):
+    return .atom(.int(lhs + rhs))
+  case let (.string(lhs), .string(rhs)):
+    return .atom(.string(lhs + rhs))
+  default:
+    // TODO: report error
+    return .nil
+  }
 }
 
 internal func quote(_ args: SExpr, _ environment: inout Environment) -> SExpr {
