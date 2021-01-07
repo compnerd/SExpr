@@ -6,11 +6,14 @@
 //
 
 internal enum Builtin: String {
-  case _add = "+"
+  case add = "+"
 
   case define
   case lambda
   case quote
+}
+
+extension Builtin: CaseIterable {
 }
 
 extension Builtin {
@@ -19,7 +22,7 @@ extension Builtin {
   }
 }
 
-internal func define(_ args: SExpr, _ environment: inout Environment) -> SExpr {
+internal func define$(_ args: SExpr, _ environment: inout Environment) -> SExpr {
   guard case let .list(exprs) = args, exprs.count == 2 else { return .nil }
 
   if case let .list(vars) = exprs[0] {
@@ -47,7 +50,7 @@ internal func define(_ args: SExpr, _ environment: inout Environment) -> SExpr {
   return .nil
 }
 
-internal func lambda(_ args: SExpr, _ environment: inout Environment) -> SExpr {
+internal func lambda$(_ args: SExpr, _ environment: inout Environment) -> SExpr {
   guard case let .list(exprs) = args, exprs.count == 2 else { return .nil }
 
   guard case let .list(bindings) = exprs[0] else { return .nil }
@@ -67,7 +70,7 @@ internal func lambda(_ args: SExpr, _ environment: inout Environment) -> SExpr {
   return .atom(.string(name))
 }
 
-internal func plus(_ args: SExpr, _ environment: inout Environment) -> SExpr {
+internal func plus$(_ args: SExpr, _ environment: inout Environment) -> SExpr {
   // TODO: convert this to > 1, and map `+` over the arguments
   guard case let .list(exprs) = args, exprs.count == 2 else { return .nil }
 
@@ -111,7 +114,23 @@ internal func plus(_ args: SExpr, _ environment: inout Environment) -> SExpr {
   }
 }
 
-internal func quote(_ args: SExpr, _ environment: inout Environment) -> SExpr {
+internal func quote$(_ args: SExpr, _ environment: inout Environment) -> SExpr {
   guard case let .list(exprs) = args, exprs.count == 1 else { return .nil }
   return exprs[0]
+}
+
+extension Builtin {
+  internal var name: String {
+    return self.rawValue
+  }
+
+  internal var value: Value {
+    switch self {
+    case .add: return .procedure(plus$)
+
+    case .define: return .procedure(define$)
+    case .lambda: return .procedure(lambda$)
+    case .quote: return .procedure(quote$)
+    }
+  }
 }
