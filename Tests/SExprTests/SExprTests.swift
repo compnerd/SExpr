@@ -247,4 +247,12 @@ final class BuiltinsTests: XCTestCase {
     let result = expr.evaluate(in: &environment)
     XCTAssertEqual(result, .atom(.int(2)))
   }
+
+  func testEvaluatePlusStrings() {
+    let expr: SExpr = "(+ \"a\" \"b\")"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .nil)
+  }
 }

@@ -105,8 +105,6 @@ internal func plus(_ args: SExpr, _ environment: inout Environment) -> SExpr {
     return .atom(.double(lhs + rhs))
   case let (.int(lhs), .int(rhs)):
     return .atom(.int(lhs + rhs))
-  case let (.string(lhs), .string(rhs)):
-    return .atom(.string(lhs + rhs))
   default:
     // TODO: report error
     return .nil
