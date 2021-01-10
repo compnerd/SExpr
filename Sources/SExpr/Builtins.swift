@@ -22,8 +22,8 @@ extension Builtin {
   }
 }
 
-internal func define$(_ args: SExpr, _ environment: inout Environment) -> SExpr {
-  guard case let .list(exprs) = args, exprs.count == 2 else { return .nil }
+internal func define$(_ expr: SExpr, _ environment: inout Environment) -> SExpr {
+  guard case let .list(exprs) = expr, exprs.count == 2 else { return .nil }
 
   if case let .list(vars) = exprs[0] {
     guard vars.count > 0 else { return .nil }
@@ -31,8 +31,8 @@ internal func define$(_ args: SExpr, _ environment: inout Environment) -> SExpr 
 
     let bind: [SExpr] = Array<SExpr>(vars.dropFirst(1))
     let body: SExpr = exprs[1]
-    environment[name] = .procedure({ args, environment in
-      guard case let .list(args) = args else { return .nil }
+    environment[name] = .procedure({ expr, environment in
+      guard case let .list(args) = expr else { return .nil }
       let names: [String] = bind.compactMap {
         if case let .atom(.string(name)) = $0 { return name }
         // TODO: should this be a free-variable which is already bound?
@@ -50,14 +50,14 @@ internal func define$(_ args: SExpr, _ environment: inout Environment) -> SExpr 
   return .nil
 }
 
-internal func lambda$(_ args: SExpr, _ environment: inout Environment) -> SExpr {
-  guard case let .list(exprs) = args, exprs.count == 2 else { return .nil }
+internal func lambda$(_ expr: SExpr, _ environment: inout Environment) -> SExpr {
+  guard case let .list(exprs) = expr, exprs.count == 2 else { return .nil }
 
   guard case let .list(bindings) = exprs[0] else { return .nil }
   let name: String = "$\(UInt32.random(in: 1000...9999))"
   let body: SExpr = exprs[1]
-  environment[name] = .procedure({ args, environment in
-    guard case let .list(args) = args else { return .nil }
+  environment[name] = .procedure({ expr, environment in
+    guard case let .list(args) = expr else { return .nil }
     let names: [String] = bindings.compactMap {
       if case let .atom(.string(name)) = $0 { return name }
       // TODO: should this be a free-variable which is already bound?
@@ -70,9 +70,9 @@ internal func lambda$(_ args: SExpr, _ environment: inout Environment) -> SExpr 
   return .atom(.string(name))
 }
 
-internal func plus$(_ args: SExpr, _ environment: inout Environment) -> SExpr {
+internal func plus$(_ expr: SExpr, _ environment: inout Environment) -> SExpr {
   // TODO: convert this to > 1, and map `+` over the arguments
-  guard case let .list(exprs) = args, exprs.count == 2 else { return .nil }
+  guard case let .list(exprs) = expr, exprs.count == 2 else { return .nil }
 
   func value(of expr: SExpr, in environment: Environment) -> SExpr {
     switch expr {
@@ -114,8 +114,8 @@ internal func plus$(_ args: SExpr, _ environment: inout Environment) -> SExpr {
   }
 }
 
-internal func quote$(_ args: SExpr, _ environment: inout Environment) -> SExpr {
-  guard case let .list(exprs) = args, exprs.count == 1 else { return .nil }
+internal func quote$(_ expr: SExpr, _ environment: inout Environment) -> SExpr {
+  guard case let .list(exprs) = expr, exprs.count == 1 else { return .nil }
   return exprs[0]
 }
 
