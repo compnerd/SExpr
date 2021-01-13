@@ -256,3 +256,69 @@ final class BuiltinsTests: XCTestCase {
     XCTAssertEqual(result, .nil)
   }
 }
+
+final class MathTests: XCTestCase {
+  func testAdditionInt() {
+    let expr: SExpr = "(+ 1 1)"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.int(2)))
+  }
+
+  func testAdditionDouble() {
+    let expr: SExpr = "(+ 1.0 1.0)"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.double(2.0)))
+  }
+
+  func testSubstractionInt() {
+    let expr: SExpr = "(- 1 1)"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.int(0)))
+  }
+
+  func testSubstractionDouble() {
+    let expr: SExpr = "(- 1.0 1.0)"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.double(0.0)))
+  }
+
+  func testMultiplicationInt() {
+    let expr: SExpr = "(* 1 1)"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.int(1)))
+  }
+
+  func testMultiplicationDouble() {
+    let expr: SExpr = "(* 1.0 1.0)"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.double(1.0)))
+  }
+
+  func testDivisionInt() {
+    let expr: SExpr = "(/ 1 1)"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.int(1)))
+  }
+
+  func testDivisionDouble() {
+    let expr: SExpr = "(/ 1.0 1.0)"
+    var environment: Environment = .default
+
+    let result = expr.evaluate(in: &environment)
+    XCTAssertEqual(result, .atom(.double(1.0)))
+  }
+}

@@ -6,7 +6,10 @@
 //
 
 internal enum Builtin: String {
-  case add = "+"
+  case addition = "+"
+  case substraction = "-"
+  case multiplication = "*"
+  case division = "/"
 
   case define
   case lambda
@@ -70,10 +73,14 @@ internal func lambda$(_ expr: SExpr, _ environment: inout Environment) -> SExpr 
   return .atom(.string(name))
 }
 
-internal func plus$(_ expr: SExpr, _ environment: inout Environment) -> SExpr {
-  // TODO: convert this to > 1, and map `+` over the arguments
-  guard case let .list(exprs) = expr, exprs.count == 2 else { return .nil }
+internal func quote$(_ expr: SExpr, _ environment: inout Environment) -> SExpr {
+  guard case let .list(exprs) = expr, exprs.count == 1 else { return .nil }
+  return exprs[0]
+}
 
+internal func op(_ integral: @escaping (Int, Int) -> Int,
+                 _ real: @escaping (Double, Double) -> Double)
+    -> (SExpr, inout Environment) -> SExpr {
   func value(of expr: SExpr, in environment: Environment) -> SExpr {
     switch expr {
     case .atom(.int(_)):
@@ -97,26 +104,26 @@ internal func plus$(_ expr: SExpr, _ environment: inout Environment) -> SExpr {
     }
   }
 
-  guard case let .atom(lhs) = value(of: exprs[0], in: environment),
-        case let .atom(rhs) = value(of: exprs[1], in: environment) else {
-    // TODO: report error
-    return .nil
-  }
+  return { (_ expr: SExpr, _ environment: inout Environment) -> SExpr in
+    // TODO: convert this to > 1, and map `+` over the arguments
+    guard case let .list(exprs) = expr, exprs.count == 2 else { return .nil }
 
-  switch (lhs, rhs) {
-  case let (.double(lhs), .double(rhs)):
-    return .atom(.double(lhs + rhs))
-  case let (.int(lhs), .int(rhs)):
-    return .atom(.int(lhs + rhs))
-  default:
-    // TODO: report error
-    return .nil
-  }
-}
+    guard case let .atom(lhs) = value(of: exprs[0], in: environment),
+          case let .atom(rhs) = value(of: exprs[1], in: environment) else {
+      // TODO: report error
+      return .nil
+    }
 
-internal func quote$(_ expr: SExpr, _ environment: inout Environment) -> SExpr {
-  guard case let .list(exprs) = expr, exprs.count == 1 else { return .nil }
-  return exprs[0]
+    switch (lhs, rhs) {
+    case let (.double(lhs), .double(rhs)):
+      return .atom(.double(real(lhs, rhs)))
+    case let (.int(lhs), .int(rhs)):
+      return .atom(.int(integral(lhs, rhs)))
+    default:
+      // TODO: report error
+      return .nil
+    }
+  }
 }
 
 extension Builtin {
@@ -126,7 +133,10 @@ extension Builtin {
 
   internal var value: Value {
     switch self {
-    case .add: return .procedure(plus$)
+    case .addition: return .procedure(op({ $0 + $1 }, { $0 + $1 }))
+    case .substraction: return .procedure(op({ $0 - $1 }, { $0 - $1 }))
+    case .multiplication: return .procedure(op({ $0 * $1 }, { $0 * $1 }))
+    case .division: return .procedure(op({ $0 / $1 }, { $0 / $1 }))
 
     case .define: return .procedure(define$)
     case .lambda: return .procedure(lambda$)
