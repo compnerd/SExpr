@@ -51,6 +51,12 @@ extension SExpr: ExpressibleByStringLiteral {
 }
 
 extension SExpr {
+  public init(_ string: String) {
+    self = SExpr(string.tokens())
+  }
+}
+
+extension SExpr {
   public func evaluate(in environment: inout Environment) -> SExpr {
     switch self {
     case let .atom(symbol):
